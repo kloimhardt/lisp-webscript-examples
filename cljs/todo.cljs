@@ -1,6 +1,6 @@
 (require '[qlkit.core :as ql :refer [defcomponent*]]
          '[ajax.core :refer [POST]]
-         '[sablono.interpreter :as si])
+         '[sablono.interpreter :refer [interpret] :rename {interpret html}])
 
 (defmulti read (fn [qterm & _] (first qterm)))
 
@@ -15,7 +15,7 @@
 (defmethod read :db/id
   [query-term {:keys [todo-id] :as env} state]
   (when (get-in state [:todo/by-id todo-id])
-      todo-id))
+    todo-id))
 
 (defmethod read :todo/text
   [query-term {:keys [todo-id] :as env} state]
@@ -87,16 +87,16 @@
 (defcomponent* TodoItem
   (query [[:todo/text] [:db/id]])
   (render [this {:keys [:todo/text] :as atts} state]
-          (si/interpret
+          (html
             [:li.box
              [:span text]
-             [:button.delete.is-pulled-right {:on-click (fn []
-                                                 (ql/transact!* this [:todo/delete!]))}]])))
+             [:button.delete.is-pulled-right
+              {:on-click (fn [] (ql/transact!* this [:todo/delete!]))}]])))
 
 (defcomponent* TodoList
   (query [[:qlkit-todo/todos (ql/get-query TodoItem)]])
   (render [this {:keys [:qlkit-todo/todos] :as atts} {:keys [new-todo] :as state}]
-          (si/interpret
+          (html
             [:div.content>div.columns.is-centered>div.column.is-two-thirds
              [:div.columns>div.column
               [:div.field
