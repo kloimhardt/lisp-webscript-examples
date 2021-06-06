@@ -88,30 +88,34 @@
   (query [[:todo/text] [:db/id]])
   (render [this {:keys [:todo/text] :as atts} state]
           (si/interpret
-            [:li
-                 text
-                 [:button {:on-click (fn []
-                                       (ql/transact!* this [:todo/delete!]))}
-                  "X"]])))
+            [:div.list-item
+             [:div.tags
+              [:button.tag.is-delete {:on-click (fn []
+                                           (ql/transact!* this [:todo/delete!]))}
+               ]
+              [:span.tag text]]
+             ])))
 
 (defcomponent* TodoList
   (query [[:qlkit-todo/todos (ql/get-query TodoItem)]])
   (render [this {:keys [:qlkit-todo/todos] :as atts} {:keys [new-todo] :as state}]
           (si/interpret
-            [:div {}
-                 [:input {:id          :new-todo
-                          :value       (or new-todo "")
-                          :placeholder "What needs to be done?"
-                          :on-key-down (fn [e]
-                                         (when (= (.-keyCode e) 13)
-                                           (ql/transact!* this [:todo/new! {:db/id     (ql/random-uuid)
-                                                                            :todo/text new-todo}])
-                                           (ql/update-state!* this dissoc :new-todo)))
-                          :on-change   (fn [e]
-                                         (ql/update-state!* this assoc :new-todo (.-value (.-target e))))}]
+            [:div
+             [:div.field
+              [:input.input {:id          :new-todo
+                             :value       (or new-todo "")
+                             :placeholder "What needs to be done?"
+                             :on-key-down (fn [e]
+                                            (when (= (.-keyCode e) 13)
+                                              (ql/transact!* this [:todo/new! {:db/id     (ql/random-uuid)
+                                                                               :todo/text new-todo}])
+                                              (ql/update-state!* this dissoc :new-todo)))
+                             :on-change   (fn [e]
+                                            (ql/update-state!* this assoc :new-todo (.-value (.-target e))))}]]
              (when (seq todos)
-                   [:ol (for [todo todos]
-                          (ql/create-instance TodoItem todo))])])))
+               [:div.list
+                (for [todo todos]
+                      (ql/create-instance TodoItem todo))])])))
 
 (defn remote-handler [query callback]
   (POST "?endpoint"
