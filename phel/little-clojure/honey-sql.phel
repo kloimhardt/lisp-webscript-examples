@@ -1,0 +1,78 @@
+(ns app\little-clojure\honey-sql
+  (:require app\little-clojure\core :as clj
+            :refer [name]))
+# This is just a proof of concept for honey-sql in Phel.
+# https://github.com/seancorfield/honeysql
+# No intention to make it a generally useful library
+
+# (load "./phel-backend/little-clojure/honey-sql.phel")
+
+(def fmt-opt
+  {[:primary-key] "PRIMARY KEY"
+   [:not nil] "NOT NULL"
+   [:default [:now]] "DEFAULT NOW()"})
+
+(defn with-column [[colname type opt1 opt2]]
+  (str (name colname) " " (php/strtoupper (name type)) " "
+       (fmt-opt opt1) " " (fmt-opt opt2)))
+
+(defn create-table [{:create-table tbl :with-columns columns}]
+  (str "CREATE TABLE " (name tbl) " ("
+       (apply str (interpose ", " (map with-column columns))) ")"))
+
+(defn quote-string [txt]
+  (if (string? txt)
+    (str "\"" txt "\"")
+    txt))
+
+(defn wheref [w]
+  (when w
+    (let [[_ colname val] w]
+      (str " WHERE " (name colname) " = " (quote-string val)))))
+
+(defn selectf [{:select select :from from :where where}]
+  (str "SELECT " (name (first select)) " FROM " (name (first from))
+       (wheref where)))
+
+(defn insert-into [{:insert-into insert-into :columns columns :values values}]
+  (str "INSERT INTO " (name (first insert-into))
+       " (" (name (first columns))
+       ") VALUES (" (quote-string (ffirst values)) ")"))
+
+(defn delete-from [{:delete-from delete-from :where where}]
+  (str "DELETE FROM " (name (first delete-from)) (wheref where)))
+
+(defn format [m]
+  (cond (:create-table m)
+        (create-table m)
+        (:select m)
+        (selectf m)
+        (:insert-into m)
+        (insert-into m)
+        (:delete-from m)
+        (delete-from m)))
+
+# -------------- tests --------------
+
+(defn tests []
+  [(= (format {:delete-from [:todos] :where [:= :id 1]})
+        "DELETE FROM todos WHERE id = 1")
+
+   (= (format {:insert-into [:todos] :columns [:text] :values [["hi"]]})
+      "INSERT INTO todos (text) VALUES (\"hi\")")
+
+   (= (format {:select [:id] :from [:todos]})
+      "SELECT id FROM todos")
+
+   (= (format {:select [:text] :from [:todos] :where [:= :id 1]})
+      "SELECT text FROM todos WHERE id = 1")
+
+   (= (format {:select [:text] :from [:todos] :where [:= :id "hi"]})
+      "SELECT text FROM todos WHERE id = \"hi\"")
+
+   (= (format {:create-table :todos
+                :with-columns
+                [[:id :serial [:primary-key]]
+                 [:text :text [:not nil]]
+                 [:timestamp :timestamp [:not nil] [:default [:now]]]]})
+      "CREATE TABLE todos (id SERIAL PRIMARY KEY , text TEXT NOT NULL , timestamp TIMESTAMP NOT NULL DEFAULT NOW())")])

@@ -1,0 +1,101 @@
+(ns app\parsers-db
+  (:require app\qlkit\core :as ql)
+  (:require app\little-clojure\core :as clj
+            :refer [eprint atom deref assoc dissoc swap! mapv name])
+  (:require app\little-clojure\honey-sql :as hsql)) #just a glimpse of honey-sql
+
+(def dev false)
+
+# (def dev true)
+# (load "./phel-backend/parsers-db.phel")
+
+(defn pdo-mock []
+  (let [dsn "mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8"]
+    (php/new "\\PDO" dsn "mkloim" "mkloimpwd")))
+
+(defn pdo [] (:pdo (deref ql/mount-info)))
+
+(defn query-raw [txt]
+  (php/-> (if dev (pdo-mock) (pdo)) (query txt)))
+
+(defn query [query-map]
+  (query-raw (hsql/format query-map)))
+
+(defn get-kw [m kw]
+  (get m (name kw)))
+
+(defn create-tables-if-necessary []
+  (let [tables2d (php/-> (query-raw "SHOW TABLES") (fetchAll))
+        table-set (clj/into-set (mapv first tables2d))
+        new-table-name :todos
+        qry {:create-table new-table-name
+             :with-columns
+             [[:id :serial [:primary-key]]
+              [:text :text [:not nil]]
+              [:timestamp :timestamp [:not nil] [:default [:now]]]]}]
+    (when-not (clj/set-contains? table-set (name new-table-name))
+      (eprint (str "Creating new table " new-table-name))
+      (query qry))))
+
+(def read (clj/defmulti (fn [query-term env state] (first query-term))))
+
+(def mutate (clj/defmulti (fn [a & args] (first a))))
+
+(defn db-get-ids []
+  (let [id :id]
+    (mapv |(get-kw $ id) (query {:select [id] :from [:todos]}))))
+
+(clj/defmethod read :qlkit-todo/todos
+  (fn [query-term env _]
+    (let [[_ params] query-term
+          {:todo-id todo-id} params]
+      (if todo-id
+        [(ql/parse-children query-term (assoc env :todo-id todo-id))]
+        (for [id :in (db-get-ids)]
+          (ql/parse-children query-term (assoc env :todo-id id)))))))
+
+(defn db-get-text [id]
+  (let [text :text]
+    (first (mapv |(get-kw $ text)
+                 (query {:select [text] :from [:todos] :where [:= :id id]})))))
+
+(clj/defmethod read :todo/text
+  (fn [query-term env _]
+    (let [{:todo-id todo-id} env]
+      (hsql/quote-string (db-get-text todo-id)))))
+
+(defn db-get-id [id-val]
+  (let [id :id]
+    (first (mapv |(get-kw $ id)
+                 (query {:select [id] :from [:todos] :where [:= id id-val]})))))
+
+(clj/defmethod read :db/id
+  (fn [query-term env _]
+    (let [{:todo-id todo-id} env]
+      (when (db-get-id todo-id)
+        todo-id))))
+
+(defn db-insert-text [text]
+  (query {:insert-into [:todos] :columns [:text] :values [[text]]})
+  (let [last-insert-id "LAST_INSERT_ID()"]
+    (first (mapv |(get $ last-insert-id)
+                 (query-raw (str "select " last-insert-id))))))
+
+(defn make-uuid [txt]
+  (str "#uuid " (hsql/quote-string txt)))
+
+(clj/defmethod mutate :todo/new!
+  (fn [query-term env _]
+    (let [[dispatch-key params] query-term
+          {:db/id db/id :todo/text todo/text} params
+          permanent-id (db-insert-text todo/text)]
+      [(make-uuid id) permanent-id])))
+
+(defn db-delete-record [id-val]
+  (query {:delete-from [:todos] :where [:= :id id-val]})
+  true)
+
+(clj/defmethod mutate :todo/delete!
+  (fn [query-term env _]
+    (let [{:todo-id todo-id} env]
+      (db-delete-record todo-id))))

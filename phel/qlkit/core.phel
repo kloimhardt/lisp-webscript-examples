@@ -1,0 +1,112 @@
+(ns app\qlkit\core
+  (:require app\little-clojure\core :as clj
+            :refer [eprint atom atom? deref assoc dissoc swap! doall mapv reset!]))
+
+(defn safe-deref [state]
+  (if (atom? state) (deref state) state))
+
+(def mount-info (atom {}))
+
+(defn warning [msg]
+  (eprint msg))
+
+(defn actualize [x] x)
+
+(defn mutation-query-term? [query-term]
+  (= "!" (php/substr (str (first query-term)) -1)))
+
+(defn parse-query-term [query-term env]
+  (let [{:state state :parsers parsers} (deref mount-info)
+        {:read read :mutate mutate :remote remote} parsers
+        mutate-fn (clj/get-fn mutate query-term env state)]
+    (if (or (not (mutation-query-term? query-term))
+            mutate-fn
+            (clj/get-fn remote query-term state))
+      (actualize (cond
+                   (mutation-query-term? query-term)
+                   (when mutate-fn (mutate-fn query-term env state))
+                   read
+                   (clj/dispatch read query-term env (safe-deref state))
+                   true nil))
+      (warning (str "[QlKit] mutate! query must have either a mutate or a remote parser: "
+                    (print-str query-term))))))
+
+(defn parse-query [query & [env]]
+  (let [env (or env {})]
+    (doall (for [query-term :in query]
+             (parse-query-term query-term env)))))
+
+(defn parse-query-into-map [query env]
+  (clj/into-map
+    (mapv vector (mapv first query) (parse-query query env))))
+
+(defn parse-children [query-term env]
+  (parse-query-into-map (drop 2 query-term) (assoc env :qlkit/parent-env (assoc env :qlkit/query-key (first query-term)))))
+
+(defn refresh [remote-query?]
+  nil)
+
+(defn mount [args]
+  (let [new-version (inc (or (:version (deref mount-info)) 0))]
+    (reset! mount-info
+            (assoc args :version new-version))
+    (when-not (:server? args)
+      (refresh true))))
+
+# ------------ tests -----------------
+
+(def read (clj/defmulti (fn [query-term env state] (first query-term))))
+
+(def mutate (clj/defmulti (fn [a & args] (first a))))
+
+(def remote (clj/defmulti (fn [a & args] (first a))))
+
+(defn is-equal [a b]
+  (= a b))
+
+(defn parse-with [fun query-term]
+  (clj/remove-all-methods read)
+  (clj/remove-all-methods mutate)
+  (clj/remove-all-methods remote)
+  (fun)
+  (parse-query-term query-term {}))
+
+(defn parse-query-test []
+  (reset! mount-info {:parsers {:read   read
+                                :mutate mutate
+                                :remote remote}
+                       :state {}})
+  [(is-equal (parse-with (fn []
+                           (clj/defmethod read :foo
+                             (fn [query-term env state]
+                               42)))
+                         [:foo])
+             42)
+
+   (let [x (atom 0)]
+     (parse-with (fn []
+                   (clj/defmethod mutate :bar!
+                     (fn [query-term env state]
+                       (swap! x inc))))
+                 [:bar!])
+     (is-equal (deref x) 1))
+
+   (is-equal (parse-with (fn [] nil)
+                         [:foo])
+             "No method in multimethod for: :foo")
+   (is-equal
+     (mapv |(dissoc $ ::qlkit/env ::qlkit/query)
+          (parse-with (fn []
+                        (clj/defmethod read :animals
+                          (fn [query-term env state]
+                            (for [animal-id :in (range 3)]
+                              (parse-children query-term (assoc env :animal-id animal-id)))))
+                        (clj/defmethod read :name
+                          (fn [query-term env state]
+                            (get {0 :duck 1 :cat 2 :dog} (:animal-id env)))))
+                      [:animals {} [:name]]))
+     [{:name :duck} {:name :cat} {:name :dog}])])
+
+(defn mount-test []
+  (mount {:state (atom 5)})
+  (is-equal (deref (:state (deref mount-info))) 5))

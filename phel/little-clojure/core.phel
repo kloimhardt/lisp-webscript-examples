@@ -1,0 +1,134 @@
+(ns app\little-clojure\core)
+
+(def mapv map)
+
+(defn writefile[fname txt]
+  (let [myfile (php/fopen fname "a")
+        code (php/fwrite myfile (str txt "\n"))
+        _ (php/fclose myfile)]
+    txt))
+
+(defn eprint [e]
+  (writefile "klmlog.txt" (print-str e))
+  e)
+
+(defn into-set [coll]
+  (let [empty (set)]
+    (reduce push empty coll)))
+
+(defn set-contains? [st el]
+  (if (= (set) (intersection st (set el))) nil el))
+
+(defn into-table [coll]
+  (let [empty @{}]
+    (reduce (fn [m [k v]] (put m k v)) empty coll)))
+
+(defn into-map [coll]
+  (reduce (fn [m [k v]] (put m k v)) {} coll))
+
+(defn assoc [m k v]
+  (put m k v))
+
+(defn dissoc [mp & ks]
+  (reduce (fn[m k] (unset m k)) mp ks))
+
+(defn name [kw]
+  (php/substr (str kw) 1))
+
+(defn atom [val]
+  (let [a @{:atom-val val}] a))
+
+(defn swap! [a fun]
+  (let [val (fun (:atom-val a))]
+    (put a :atom-val val)
+    val))
+
+(defn reset! [a val]
+  (put a :atom-val val)
+  val)
+
+(defn doall [x] x)
+
+(defn deref [a] (:atom-val a))
+
+(defn atom? [a]
+  (and (table? a) (:atom-val a)))
+
+(defn read-edn [edn-string]
+  (let [comma-outside-string "/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/"
+        str1 (php/preg_replace comma-outside-string "" edn-string)
+        phel-string
+        (reduce (fn[s [a b]] (php/str_replace a b s))
+                str1
+                [["#uuid" ""] ["(" "["] [")" "]"]])]
+    (php/-> (php/new \Phel\Compiler\CompilerFacade) (eval phel-string))))
+
+(defn write-edn [phel-data]
+  (->> (print-str phel-data)
+       (php/str_replace "@{" "{")
+       (php/str_replace "@[" "[")))
+
+(defn get-fn1 [f argsv]
+  (let [af (if (atom? f) (deref f) f)]
+    (if (and (hash-map? af) (= (into-set (keys af)) (set :dispatch-fn :fn-map)))
+      (let [{:fn-map fn-map :dispatch-fn dispatch-fn} af
+            dispatch-val (apply dispatch-fn argsv)]
+        {:fun (get fn-map dispatch-val) :dispatch-val dispatch-val})
+      {:fun f :dispatch-val nil})))
+
+(defn get-fn [f & args]
+  (:fun (get-fn1 f args)))
+
+(defn dispatch [f & args]
+  (let [{:fun fun :dispatch-val dispatch-val} (get-fn1 f args)]
+    (if fun
+      (apply fun args)
+      (eprint (str "No method in multimethod for: " dispatch-val)))))
+
+(defn remove-all-methods [mfun]
+  (swap! mfun |(put $ :fn-map {})))
+
+(defn defmethod [mfun dispatch-key fn]
+  (swap! mfun (fn[m] (put-in m [:fn-map dispatch-key] fn))))
+
+(defn defmulti [dispatch-fn]
+  (atom {:dispatch-fn dispatch-fn
+         :fn-map {}}))
+
+# ------------ tests ------------------
+(def multif (defmulti identity))
+
+(defmethod multif :a (fn [] "a"))
+
+(defmethod multif :b (fn [] "b"))
+
+(defn tests []
+  [(= (apply + [3 4]) 7)
+   (= (into-set [3 4 4]) (set 3 4))
+   (= (set-contains? (set 3 4) 4) 4)
+   (= (set-contains? (set 3 4) 2) nil)
+   (= (into-table [[:a 1] [:b 2]]) @{:a 1 :b 2})
+   (= (into-map [[:a 1] [:b 2]]) {:a 1 :b 2})
+   (= (assoc {:a 1 :b 2} :c 3)
+      {:a 1 :b 2 :c 3})
+   (= (dissoc {:a 1 :b 2 :c 4} :a :b)
+      {:c 4})
+   (let [ a (atom 8)]
+     (= (deref a)
+        8)
+     (= (swap! a inc)
+        9)
+     (= (deref a)
+        9)
+     (= (reset! a 2)
+        2)
+     (= (deref a)
+        2))
+   (= (read-edn "[1 {:a 7}]")
+      [1 {:a 7}])
+   (= (write-edn [1 {:a 7}])
+      "[1 {:a 7}]")
+   (= (dispatch multif :a) "a")
+
+   (= (dispatch multif :b) "b")
+   ])
