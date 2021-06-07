@@ -6,6 +6,8 @@
   (:require app\little-clojure\core :as clj
             :refer [eprint writefile deref reset!]))
 
+(def dsn "mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8")
+
  # ./vendor/bin/phel repl
  # (load "./phel-backend/server.phel")
  # php -S localhost:8000
@@ -74,7 +76,6 @@
      (http/emit-response rsp)))
 
  (let [request (http/request-from-globals)
-       dsn "mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8"
        pdo (php/new "\\PDO" dsn "mkloim" "mkloimpwd")]
    (ql/mount {:parsers {:read   parsers-db/read
                         :mutate parsers-db/mutate}
