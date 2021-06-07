@@ -19,7 +19,7 @@
      {:status  200
       :body result}))
 
- (defn home-html [cljs-code]
+ (defn home-html []
    (html
      (doctype :html5)
      [:html
@@ -35,15 +35,22 @@
        [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.js" :type "application/javascript"}]
        [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js" :type "application/javascript"}]
        [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.qlkit.js" :type "application/javascript"}]
+
+       #[:script {:src "./js/scittle.js" :type "application/javascript"}]
+       #[:script {:src "./js/scittle.ajax.js" :type "application/javascript"}]
+       #[:script {:src "./js/scittle.qlkit.js" :type "application/javascript"}]
+
        [:title "Qlkit-todo"]]
       [:body
        [:div {:id "app"}]
        [:script {:type "application/x-scittle"
                  :src "./cljs/todo.cljs"}]]]))
 
+(eprint (home-html))
+
  (defn home-render [_]
    {:status 200
-    :body (home-html nil)})
+    :body (home-html)})
 
  (defstruct route [method url query page])
 

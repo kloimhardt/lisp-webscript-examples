@@ -4,7 +4,7 @@ Lisp like its Javacript+PHP.
 
 Examples for programming small web-apps using two [Clojure](https://clojure.org) inspired Lisp interpreters, one for the backend and one for the frontend: [Phel](https://phel-lang.org) and  [Scittle](https://borkdude.github.io/scittle). Because the interpreters run on PHP and Javascript respectively, the code can be deployed on cheap shared web-hosting. Moreover the code can be directly changed on the host with immediate effect, because there is no compilation step involved: Lisp like its Javacript+PHP.
 
-The are two examples, both canonical: Guestbook and Todo-MVC. They show how to administer the interplay between frontend and backend the Clojure way. While Guestbook (taken directly from the [Luminus book](https://pragprog.com/titles/dswdcloj3/web-development-with-clojure-third-edition)) is simpler and has a more traditional REST api, Todo-MVC sports a more advanced GraphQL api via [Qlkit](https://medium.com/@conrad_9565/lets-build-a-ui-with-qlkit-and-graph-queries-79b7b118ddac)
+The are two examples, both canonical: Guestbook and Todo-MVC. They show how to administer the interplay between frontend and backend the Clojure way. While Guestbook (taken directly from the [Luminus book](https://pragprog.com/titles/dswdcloj3/web-development-with-clojure-third-edition)) is simpler and has a more traditional REST api, Todo-MVC has a more advanced GraphQL api via [Qlkit](https://medium.com/@conrad_9565/lets-build-a-ui-with-qlkit-and-graph-queries-79b7b118ddac)
 
 ## Setup
 

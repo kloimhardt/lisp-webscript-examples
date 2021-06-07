@@ -1,6 +1,6 @@
 (require '[qlkit.core :as ql :refer [defcomponent*]]
          '[ajax.core :refer [POST]]
-         '[sablono.interpreter :refer [interpret] :rename {interpret html}])
+         '[daiquiri.interpreter :refer [interpret] :rename {interpret html}])
 
 (defmulti read (fn [qterm & _] (first qterm)))
 
