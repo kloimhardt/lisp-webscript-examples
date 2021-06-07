@@ -6,17 +6,15 @@
 ; We make no guarantees that this code is fit for any purpose.
 ; Visit http://www.pragmaticprogrammer.com/titles/dswdcloj3 for more book information.
 ;---
-; small changes made for use with https://github.com/kloimhardt/bb-web
 ; zip archive retrieved from the "Resources" section of
 ; https://pragprog.com/titles/dswdcloj3/web-development-with-clojure-third-edition/
 ; file: guestbook-reagent/src/cljs/guestbook/core.cljs
 
 (require '[reagent.core :as r]
-         '[reagent.dom :as rdom]
+         '[reagent.dom :as dom]
          '[ajax.core :refer [GET POST]]
          '[clojure.string :as string])
 
-(def state (r/atom {:clicks 0}))
 ;
 (defn get-messages [messages]
   (GET "?messages"
@@ -31,7 +29,7 @@
    (for [{:keys [timestamp message name]} @messages]
      ^{:key timestamp}
      [:li
-      [:time timestamp]
+      [:time (.toLocaleString timestamp)]
       [:p message]
       [:p " - " name]])])
 ;
@@ -43,7 +41,7 @@
         {:format :json
          :headers
          {"Accept" "application/json"
-         ;; "x-csrf-token" (go/get (gd/getElement "token") "value")
+          ;;"x-csrf-token" (.-value (.getElementById js/document "token"))}
           }
          :params @fields
          :handler (fn [_]
@@ -51,7 +49,7 @@
                     (reset! fields nil)
                     (reset! errors nil))
          :error-handler (fn [e]
-                          (println (str e))
+                          (.log js/console (str e))
                           (reset! errors (get-in e [:response :errors])))}))
 ;
 
@@ -63,8 +61,8 @@
 
 ;
 (defn message-form [messages]
-  (let [fields (r/cursor state [:fields])
-        errors (r/cursor state [:errors])]
+  (let [fields (r/atom {})
+        errors (r/atom nil)]
     (fn [messages]
       [:div
        [errors-component errors :server-error]
@@ -91,7 +89,7 @@
          :value "comment"}]])))
 
 (defn home []
-  (let [messages (r/cursor state [:messages])]
+  (let [messages (r/atom nil)]
     (get-messages messages)
     (fn []
       [:div.content>div.columns.is-centered>div.column.is-two-thirds
@@ -101,4 +99,4 @@
        [:div.columns>div.column
         [message-form messages]]])))
 ;
-(rdom/render [home] (.getElementById js/document "app"))
+(dom/render [home] (.getElementById js/document "app"))
