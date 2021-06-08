@@ -1,8 +1,7 @@
 (ns app\server
   (:require phel\http)
   (:require app\guestbook :as gb)
-  (:require app\todo-mvc :as todo)
-  )
+  (:require app\todo-mvc :as todo))
 
 (defstruct route [method url query page])
 
@@ -16,20 +15,20 @@
 
 (defn route-match [request routes]
   (let
-      [query (get (get request :uri) :query)
-       altquery (if (nil? query) "" query)
-       route (find
-               (fn [route]
-                 (and
-                   (=
-                     (get route :url)
-                     (get (get request :uri) :path))
-                   (=
-                     (get route :method)
-                     (get request :method))
-                   (=
-                     (get route :query) altquery)))
-               routes)]
+    [query (get (get request :uri) :query)
+     altquery (if (nil? query) "" query)
+     route (find
+            (fn [route]
+              (and
+               (=
+                (get route :url)
+                (get (get request :uri) :path))
+               (=
+                (get route :method)
+                (get request :method))
+               (=
+                (get route :query) altquery)))
+            routes)]
     ((get route :page) request)))
 
 (defn emit-response [response]

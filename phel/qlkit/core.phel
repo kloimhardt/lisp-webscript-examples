@@ -38,7 +38,7 @@
 
 (defn parse-query-into-map [query env]
   (clj/into-map
-    (mapv vector (mapv first query) (parse-query query env))))
+   (mapv vector (mapv first query) (parse-query query env))))
 
 (defn parse-children [query-term env]
   (parse-query-into-map (drop 2 query-term) (assoc env :qlkit/parent-env (assoc env :qlkit/query-key (first query-term)))))

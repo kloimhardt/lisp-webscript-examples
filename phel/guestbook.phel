@@ -5,24 +5,24 @@
 
 (defn home-html []
   (html
-    (doctype :html5)
-    [:html
-     [:head
-      [:meta {:charset "UTF-8"}]
-      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-      [:link {:rel "shortcut icon" :href "data:,"}]
-      [:link {:rel "apple-touch-icon" :href "data:,"}]
-      [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css"}]
-      [:script {:crossorigin nil :src "https://unpkg.com/react@17/umd/react.production.min.js"}]
-      [:script {:crossorigin nil :src "https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"}]
-      [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.js" :type "application/javascript"}]
-      [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js" :type "application/javascript"}]
-      [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.reagent.js" :type "application/javascript"}]
-      [:title "Guestbook"]]
-     [:body
-      [:div {:id "app"}]
-      [:script {:type "application/x-scittle"
-                :src "./cljs/guestbook.cljs"}]]]))
+   (doctype :html5)
+   [:html
+    [:head
+     [:meta {:charset "UTF-8"}]
+     [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+     [:link {:rel "shortcut icon" :href "data:,"}]
+     [:link {:rel "apple-touch-icon" :href "data:,"}]
+     [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css"}]
+     [:script {:crossorigin nil :src "https://unpkg.com/react@17/umd/react.production.min.js"}]
+     [:script {:crossorigin nil :src "https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"}]
+     [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.js" :type "application/javascript"}]
+     [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js" :type "application/javascript"}]
+     [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.reagent.js" :type "application/javascript"}]
+     [:title "Guestbook"]]
+    [:body
+     [:div {:id "app"}]
+     [:script {:type "application/x-scittle"
+               :src "./cljs/guestbook.cljs"}]]]))
 
 (defn date []
   (php/date_default_timezone_set "Europe/Vienna")
@@ -68,38 +68,38 @@
        handler-kw))
 
 (comment
-  (defstruct route [method url query page])
+ (defstruct route [method url query page])
 
-  (def routes
-    [(route "GET" "/guestbook.php" ""  (handlers :home-render))
-     (route "GET" "/" "" (handlers :home-render))
-     (route "GET" "/guestbook.php" "messages" (handlers :home-message-list))
-     (route "POST" "/guestbook.php" "message" (handlers :home-save-message!))])
+ (def routes
+   [(route "GET" "/guestbook.php" ""  (handlers :home-render))
+    (route "GET" "/" "" (handlers :home-render))
+    (route "GET" "/guestbook.php" "messages" (handlers :home-message-list))
+    (route "POST" "/guestbook.php" "message" (handlers :home-save-message!))])
 
-  (defn route-match [request routes]
-    (let
-        [query (get (get request :uri) :query)
-         altquery (if (nil? query) "" query)
-         route (find
-                 (fn [route]
-                   (and
-                     (=
-                       (get route :url)
-                       (get (get request :uri) :path))
-                     (=
-                       (get route :method)
-                       (get request :method))
-                     (=
-                       (get route :query) altquery)))
-                 routes)]
-      ((get route :page) request)))
+ (defn route-match [request routes]
+   (let
+     [query (get (get request :uri) :query)
+      altquery (if (nil? query) "" query)
+      route (find
+             (fn [route]
+               (and
+                (=
+                 (get route :url)
+                 (get (get request :uri) :path))
+                (=
+                 (get route :method)
+                 (get request :method))
+                (=
+                 (get route :query) altquery)))
+             routes)]
+     ((get route :page) request)))
 
-  (defn emit-response [response]
-    (let [rsp (http/create-response-from-map response)]
-      (http/emit-response rsp)))
+ (defn emit-response [response]
+   (let [rsp (http/create-response-from-map response)]
+     (http/emit-response rsp)))
 
-  (def request (http/request-from-globals))
+ (def request (http/request-from-globals))
 
   # (eprint request)
 
-  (emit-response (route-match request routes)))
+ (emit-response (route-match request routes)))
