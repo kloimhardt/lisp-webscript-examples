@@ -38,7 +38,7 @@
      [:body
       [:div {:id "app"}]
       [:script {:type "application/x-scittle"
-                :src "./cljs/todo.cljs"}]]]))
+                :src "./cljs/todo-mvc.cljs"}]]]))
 
 (defn home-render [_]
   (parsers-db/create-tables-if-necessary)
