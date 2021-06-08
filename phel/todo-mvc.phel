@@ -31,14 +31,14 @@
       [:script {:src "./js/scittle.js" :type "application/javascript"}]
       [:script {:src "./js/scittle.cljs.js" :type "application/javascript"}]
       [:script {:src "./js/scittle.ajax.js" :type "application/javascript"}]
-      [:script {:src "./js/scittle.daiquiri.js" :type "application/javascript"}]
+      [:script {:src "./js/scittle.reagent.js" :type "application/javascript"}]
       [:script {:src "./js/scittle.qlkit.js" :type "application/javascript"}]
 
       [:title "Qlkit-todo"]]
      [:body
       [:div {:id "app"}]
       [:script {:type "application/x-scittle"
-                :src "./cljs/todo-mvc.cljs"}]]]))
+                :src "./cljs/todo_mvc.cljs"}]]]))
 
 (defn home-render [_]
   (parsers-db/create-tables-if-necessary)

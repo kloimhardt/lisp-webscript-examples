@@ -1,7 +1,7 @@
 (require '[cljs.reader :refer [read-string]]
          '[qlkit.core :as ql :refer [defcomponent*]]
          '[ajax.core :refer [POST]]
-         '[daiquiri.interpreter :refer [interpret] :rename {interpret html}])
+         '[reagent.core :as r :refer [as-element] :rename {as-element html}])
 
 (defmulti read (fn [qterm & _] (first qterm)))
 
