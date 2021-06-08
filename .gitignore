@@ -1,3 +1,10 @@
 composer.lock
 composer.phar
 vendor/
+
+
+.DS_Store
+README.md.temp
+klmlog.txt
+o.txt
+phel/.DS_Store

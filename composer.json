@@ -1,5 +1,5 @@
 {
-    "name": "kloimhardt/bb-web",
+    "name": "phel-lang/lisp-webscript-examples",
     "type": "project",
     "require": {
         "phel-lang/phel-lang": "^0.3.3",
@@ -9,7 +9,13 @@
         "phel": {
             "loader": {
                 "app\\": "phel/"
-            }
+            },
+            "loader-dev": {
+                "app-tests\\": "tests/"
+            },
+            "tests": [
+                "tests/"
+            ]
         }
     }
 }
