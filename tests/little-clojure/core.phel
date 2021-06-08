@@ -1,0 +1,45 @@
+(ns app-tests\little-clojure\core
+  (:require app\little-clojure\core :as c
+            :refer [defmulti defmethod])
+  (:require phel\test :refer [deftest is]))
+
+(defn is-equal [a b]
+  (is (= a b)))
+
+(def multif (defmulti identity))
+
+(defmethod multif :a (fn [] "a"))
+
+(defmethod multif :b (fn [] "b"))
+
+
+(deftest clj-tests
+  [(is-equal (apply + [3 4]) 7)
+   (is-equal (c/into-set [3 4 4]) (set 3 4))
+   (is-equal (c/set-contains? (set 3 4) 4) 4)
+   (is-equal (c/set-contains? (set 3 4) 2) nil)
+   (is-equal (c/into-table [[:a 1] [:b 2]]) @{:a 1 :b 2})
+   (is-equal (c/into-map [[:a 1] [:b 2]]) {:a 1 :b 2})
+   (is-equal (c/assoc {:a 1 :b 2} :c 3)
+      {:a 1 :b 2 :c 3})
+   (is-equal (c/dissoc {:a 1 :b 2 :c 4} :a :b)
+      {:c 4})
+   (let [ a (c/atom 8)]
+     (is-equal (c/deref a)
+        8)
+     (is-equal (c/swap! a inc)
+        9)
+     (is-equal (c/deref a)
+        9)
+     (is-equal (c/reset! a 2)
+        2)
+     (is-equal (c/deref a)
+        2))
+   (is-equal (c/read-edn "[1 {:a 7}]")
+      [1 {:a 7}])
+   (is-equal (c/write-edn [1 {:a 7}])
+      "[1 {:a 7}]")
+   (is-equal (c/dispatch multif :a) "a")
+
+   (is-equal (c/dispatch multif :b) "b")
+   ])
