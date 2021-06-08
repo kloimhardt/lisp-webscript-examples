@@ -1,4 +1,5 @@
-(require '[qlkit.core :as ql :refer [defcomponent*]]
+(require '[cljs.reader :refer [read-string]]
+         '[qlkit.core :as ql :refer [defcomponent*]]
          '[ajax.core :refer [POST]]
          '[daiquiri.interpreter :refer [interpret] :rename {interpret html}])
 
@@ -105,7 +106,7 @@
                               :placeholder "What needs to be done?"
                               :on-key-down (fn [e]
                                              (when (= (.-keyCode e) 13)
-                                               (ql/transact!* this [:todo/new! {:db/id     (ql/random-uuid)
+                                               (ql/transact!* this [:todo/new! {:db/id (random-uuid)
                                                                                 :todo/text new-todo}])
                                                (ql/update-state!* this dissoc :new-todo)))
                               :on-change   (fn [e]
@@ -121,7 +122,7 @@
         {:format :text
          :params query
          :handler (fn [result]
-                    (callback (ql/read-string result)))
+                    (callback (read-string result)))
          :error-handler (fn [e] (print "server error: " (str e)))}))
 
 (ql/mount {:component      TodoList

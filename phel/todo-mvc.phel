@@ -1,0 +1,62 @@
+(ns app\todo-mvc
+  (:require phel\html :refer [html doctype])
+  (:require app\qlkit\core :as ql)
+  (:require app\parsers-db :as parsers-db)
+  (:require app\little-clojure\core :as clj
+            :refer [eprint writefile deref reset!]))
+
+(def dsn "mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8")
+
+# ./vendor/bin/phel repl
+# (load "./phel-backend/server.phel")
+# php -S localhost:8000
+
+(defn home-html []
+  (html
+    (doctype :html5)
+    [:html
+     [:head
+      [:meta {:charset "UTF-8"}]
+      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+      [:link {:rel "shortcut icon" :href "data:,"}]
+      [:link {:rel "apple-touch-icon" :href "data:,"}]
+      [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css"}]
+      [:script {:crossorigin nil :src "https://unpkg.com/react@17/umd/react.production.min.js"}]
+      [:script {:crossorigin nil :src "https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"}]
+      [:script {:crossorigin nil :src "https://cdnjs.cloudflare.com/ajax/libs/create-react-class/15.7.0/create-react-class.min.js"}]
+      # [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.js" :type "application/javascript"}]
+      # [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js" :type "application/javascript"}]
+      # [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.qlkit.js" :type "application/javascript"}]
+
+      [:script {:src "./js/scittle.js" :type "application/javascript"}]
+      [:script {:src "./js/scittle.cljs.js" :type "application/javascript"}]
+      [:script {:src "./js/scittle.ajax.js" :type "application/javascript"}]
+      [:script {:src "./js/scittle.daiquiri.js" :type "application/javascript"}]
+      [:script {:src "./js/scittle.qlkit.js" :type "application/javascript"}]
+
+      [:title "Qlkit-todo"]]
+     [:body
+      [:div {:id "app"}]
+      [:script {:type "application/x-scittle"
+                :src "./cljs/todo.cljs"}]]]))
+
+(defn home-render [_]
+  (parsers-db/create-tables-if-necessary)
+  {:status 200
+   :body (home-html)})
+
+(defn endpoint [_]
+  (let [body (php/file_get_contents "php://input")
+        query (clj/read-edn body)
+        result (clj/write-edn (ql/parse-query query))]
+    {:status 200
+     :body result}))
+
+(defn handlers [handler-kw]
+  (let [pdo (php/new "\\PDO" dsn "mkloim" "mkloimpwd")]
+    (ql/mount {:parsers {:read   parsers-db/read
+                         :mutate parsers-db/mutate}
+               :pdo pdo}))
+  (get {:home-render home-render
+        :endpoint endpoint}
+       handler-kw))

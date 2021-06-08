@@ -1,0 +1,40 @@
+(ns app\servernew
+  (:require phel\http)
+  (:require app\guestbook :as gb)
+  (:require app\todo-mvc :as todo)
+  )
+
+(defstruct route [method url query page])
+
+(def routes
+  [(route "GET" "/" "" (todo/handlers :home-render))
+   (route "POST" "/" "endpoint" (todo/handlers :endpoint))
+
+   (route "GET" "/" "guestbook" (gb/handlers :home-render))
+   (route "GET" "/" "messages" (gb/handlers :home-message-list))
+   (route "POST" "/" "message" (gb/handlers :home-save-message!))])
+
+(defn route-match [request routes]
+  (let
+      [query (get (get request :uri) :query)
+       altquery (if (nil? query) "" query)
+       route (find
+               (fn [route]
+                 (and
+                   (=
+                     (get route :url)
+                     (get (get request :uri) :path))
+                   (=
+                     (get route :method)
+                     (get request :method))
+                   (=
+                     (get route :query) altquery)))
+               routes)]
+    ((get route :page) request)))
+
+(defn emit-response [response]
+  (let [rsp (http/create-response-from-map response)]
+    (http/emit-response rsp)))
+
+(let [request (http/request-from-globals)]
+  (emit-response (route-match request routes)))

@@ -39,3 +39,9 @@ The code in `little-clojure/core.phel` contains a crude imitation of [Clojure mu
 I needed to expose to [Scittle](https://github.com/kloimhardt/scittle) the library [cljs-ajax](https://github.com/JulianBirch/cljs-ajax) and a slightly patched [Qlkit](https://github.com/kloimhardt/qlkit) (patched for a straightforward exposure of the central Macro). All of this Clojurescript code is compiled into publicly served [Javascript files](https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js), but can be self-compiled following the Scittle instructions.
 
 The 60 loc server part of Qlkit had to be ported to Phel.
+
+## Run Tests
+
+```
+./vendor/bin/phel test
+```
