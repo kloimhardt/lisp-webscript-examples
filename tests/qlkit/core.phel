@@ -1,4 +1,4 @@
-(ns app-tests\qlkit\core-test
+(ns app-tests\qlkit\core
   (:require app\qlkit\core :as ql)
   (:require app\little-clojure\core :as clj
             :refer [atom deref assoc dissoc swap! mapv reset!])

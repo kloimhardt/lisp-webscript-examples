@@ -51,28 +51,3 @@
         (insert-into m)
         (:delete-from m)
         (delete-from m)))
-
-# -------------- tests --------------
-
-(defn tests []
-  [(= (format {:delete-from [:todos] :where [:= :id 1]})
-        "DELETE FROM todos WHERE id = 1")
-
-   (= (format {:insert-into [:todos] :columns [:text] :values [["hi"]]})
-      "INSERT INTO todos (text) VALUES (\"hi\")")
-
-   (= (format {:select [:id] :from [:todos]})
-      "SELECT id FROM todos")
-
-   (= (format {:select [:text] :from [:todos] :where [:= :id 1]})
-      "SELECT text FROM todos WHERE id = 1")
-
-   (= (format {:select [:text] :from [:todos] :where [:= :id "hi"]})
-      "SELECT text FROM todos WHERE id = \"hi\"")
-
-   (= (format {:create-table :todos
-                :with-columns
-                [[:id :serial [:primary-key]]
-                 [:text :text [:not nil]]
-                 [:timestamp :timestamp [:not nil] [:default [:now]]]]})
-      "CREATE TABLE todos (id SERIAL PRIMARY KEY , text TEXT NOT NULL , timestamp TIMESTAMP NOT NULL DEFAULT NOW())")])
