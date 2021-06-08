@@ -21,14 +21,14 @@ php -S localhost:8000
 ## Guestbook
 To try the Guestbook example, type in the adress bar of your browser:
 ```
-http://localhost:8000/guestbook.php
+http://localhost:8000/?guestbook
 ```
 The Phel and Scittle code are in the files `phel/guestbook.phel` and `cljs/guestbook.cljs`, both sport the Clojure(Script) syntax and the goodness of persistent data structures.
 
 ## Todo-MVC
 You need to have the MySql database installed. Most probably you also need to change the `dbname=` part of the dsn string at the top of `phel/server.phel`. Then, start with
 ```
-http://localhost:8000/todo_mvc.php
+http://localhost:8000/
 ```
 
 The code in `little-clojure/honey-sql.phel` implements a very small subset of [HoneySQL](https://github.com/seancorfield/honeysql) which translates Clojure/Phel datastructures (like `{:select [:id] :from [:todos]}`) into SQL strings.
