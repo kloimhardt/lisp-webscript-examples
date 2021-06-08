@@ -24,6 +24,7 @@
       [:script {:crossorigin nil :src "https://unpkg.com/react@17/umd/react.production.min.js"}]
       [:script {:crossorigin nil :src "https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"}]
       [:script {:crossorigin nil :src "https://cdnjs.cloudflare.com/ajax/libs/create-react-class/15.7.0/create-react-class.min.js"}]
+
       [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.js" :type "application/javascript"}]
       [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.cljs.js" :type "application/javascript"}]
       [:script {:src "https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js" :type "application/javascript"}]
@@ -36,7 +37,7 @@
       #[:script {:src "./js/scittle.reagent.js" :type "application/javascript"}]
       #[:script {:src "./js/scittle.qlkit.js" :type "application/javascript"}]
 
-      [:title "Qlkit-todo"]]
+      [:title "Lisp Webscript"]]
      [:body
       [:div {:id "app"}]
       [:script {:type "application/x-scittle"
