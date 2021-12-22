@@ -1,5 +1,9 @@
 <?php
 
-$rt = require __DIR__ .'/vendor/PhelRuntime.php';
+use Phel\Phel;
 
-$rt->loadNs('app\server');
+$projectRootDir = __DIR__ . '/./';
+
+require $projectRootDir . 'vendor/autoload.php';
+
+Phel::run($projectRootDir, 'app\\server');

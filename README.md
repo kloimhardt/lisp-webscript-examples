@@ -36,7 +36,7 @@ The code in `little-clojure/honey-sql.phel` implements a very small subset of [H
 The code in `little-clojure/core.phel` contains a crude imitation of [Clojure multimethods](https://clojure.org/reference/multimethods), which are necessary for implementing Qlkit's parsers.
 
 ## Technical Note 
-I needed to expose to [Scittle](https://github.com/kloimhardt/scittle) the libraries [cljs-ajax](https://github.com/JulianBirch/cljs-ajax) and [Qlkit](https://github.com/kloimhardt/qlkit). All of this Clojurescript code is compiled into publicly served [Javascript files](https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js), but can be self-compiled following the Scittle instructions.
+I needed to expose to [Scittle](https://github.com/kloimhardt/scittle) the libraries [cljs-ajax](https://github.com/JulianBirch/cljs-ajax) and [Qlkit](https://github.com/kloimhardt/qlkit) (see branch `clj-ajax-plugin`, `scittle/src/scittle/qlkit.cljs`). All of this Clojurescript code is compiled into publicly served [Javascript files](https://kloimhardt.github.io/scittle-fork/js/scittle.ajax.js), but can be self-compiled following the Scittle instructions.
 
 The 60 loc server part of Qlkit had to be ported to Phel.
 

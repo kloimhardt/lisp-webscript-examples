@@ -2,20 +2,7 @@
     "name": "phel-lang/lisp-webscript-examples",
     "type": "project",
     "require": {
-        "phel-lang/phel-lang": "^0.3.3",
-        "mabasic/phel-json": "^0.2.0"
-    },
-    "extra": {
-        "phel": {
-            "loader": {
-                "app\\": "phel/"
-            },
-            "loader-dev": {
-                "app-tests\\": "tests/"
-            },
-            "tests": [
-                "tests/"
-            ]
-        }
+        "phel-lang/phel-lang": "^0.4.0",
+        "mabasic/phel-json": "^0.3.0"
     }
 }
