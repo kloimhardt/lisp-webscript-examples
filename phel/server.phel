@@ -5,13 +5,14 @@
 
 (defstruct route [method url query page])
 
-(def routes
-  [(route "GET" "/" "" (todo/handlers :home-render))
-   (route "POST" "/" "endpoint" (todo/handlers :endpoint))
+(when-not *compile-mode*
+  (def routes
+    [(route "GET" "/" "" (todo/handlers :home-render))
+     (route "POST" "/" "endpoint" (todo/handlers :endpoint))
 
-   (route "GET" "/" "guestbook" (gb/handlers :home-render))
-   (route "GET" "/" "messages" (gb/handlers :home-message-list))
-   (route "POST" "/" "message" (gb/handlers :home-save-message!))])
+     (route "GET" "/" "guestbook" (gb/handlers :home-render))
+     (route "GET" "/" "messages" (gb/handlers :home-message-list))
+     (route "POST" "/" "message" (gb/handlers :home-save-message!))]))
 
 (defn route-match [request routes]
   (let
@@ -35,5 +36,6 @@
   (let [rsp (http/create-response-from-map response)]
     (http/emit-response rsp)))
 
-(let [request (http/request-from-globals)]
-  (emit-response (route-match request routes)))
+(when-not *compile-mode*
+  (let [request (http/request-from-globals)]
+    (emit-response (route-match request routes))))
