@@ -17,7 +17,6 @@
    (is-equal (c/into-set [3 4 4]) (set 3 4))
    (is-equal (c/set-contains? (set 3 4) 4) 4)
    (is-equal (c/set-contains? (set 3 4) 2) nil)
-   (is-equal (c/into-table [[:a 1] [:b 2]]) @{:a 1 :b 2})
    (is-equal (c/into-map [[:a 1] [:b 2]]) {:a 1 :b 2})
    (is-equal (c/assoc {:a 1 :b 2} :c 3)
              {:a 1 :b 2 :c 3})
