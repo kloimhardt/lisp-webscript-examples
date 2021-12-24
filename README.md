@@ -13,10 +13,16 @@ You need to install PHP 7.4 (or later) and download the file [composer.phar](htt
 php composer.phar install
 
 ```
+compile the project with
+```
+./vendor/bin/phel compile
+```
 Start a server with:
 ```
 php -S localhost:8000
 ```
+
+if you want to do development without the compilation step, you need to uncomment the first five lines in `index.php` and delete the rest of the lines.
 
 ## Guestbook
 To try the Guestbook example, type in the adress bar of your browser:
