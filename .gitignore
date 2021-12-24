@@ -1,7 +1,7 @@
 composer.lock
 composer.phar
 vendor/
-
+out/
 
 .DS_Store
 README.md.temp
