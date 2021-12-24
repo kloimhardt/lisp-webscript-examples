@@ -48,7 +48,7 @@
 (defn deref [a] (:atom-val a))
 
 (defn atom? [a]
-  (and (table? a) (:atom-val a)))
+  (and (table? a) (:atom-val a))) # `table?` is deprecated and it will be removed in the next version
 
 (defn read-edn [edn-string]
   (let [comma-outside-string "/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/"
