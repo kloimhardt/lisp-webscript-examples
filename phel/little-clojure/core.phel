@@ -61,7 +61,9 @@
         (reduce (fn[s [a b]] (php/str_replace a b s))
                 str1
                 [["#uuid" ""] ["(" "["] [")" "]"]])]
-    (php/-> (php/new \Phel\Compiler\CompilerFacade) (eval phel-string))))
+    (php/-> (php/new \Phel\Compiler\CompilerFacade)
+            (eval phel-string
+                  (php/new \Phel\Compiler\Compiler\CompileOptions)))))
 
 (defn write-edn [phel-data]
   (->> (print-str phel-data)
