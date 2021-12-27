@@ -1,0 +1,3 @@
+mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8
+mkloim
+mkloimpwd

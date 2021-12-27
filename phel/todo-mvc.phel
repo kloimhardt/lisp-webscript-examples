@@ -5,7 +5,15 @@
   (:require app\little-clojure\core :as clj
             :refer [eprint writefile deref reset!]))
 
-(def dsn "mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8")
+# (def dsn "mysql:host=localhost;dbname=h37u320_menagerie;charset=UTF8")
+# (def user "mkloim")
+# (def pwd "mkloimpwd")
+# (def dsn_user_pwd [dsn user pwd])
+
+(def dsn_user_pwd
+  (->> "mysqldsn.txt"
+       (php/file_get_contents)
+       (php/explode "\n")))
 
 # ./vendor/bin/phel repl
 # (load "./phel-backend/server.phel")
@@ -54,7 +62,8 @@
      :body result}))
 
 (defn handlers [handler-kw]
-  (let [pdo (php/new "\\PDO" dsn "mkloim" "mkloimpwd")]
+  (let [[dsn user pwd] dsn_user_pwd
+        pdo (php/new "\\PDO" dsn user pwd)]
     (ql/mount {:parsers {:read   parsers-db/read
                          :mutate parsers-db/mutate}
                :pdo pdo}))

@@ -13,8 +13,9 @@ You need to install PHP 7.4 (or later) and download the file [composer.phar](htt
 php composer.phar install
 
 ```
-compile the project with
+delete the `/out` directory and compile the project with
 ```
+rm ./out
 ./vendor/bin/phel compile
 ```
 Start a server with:
