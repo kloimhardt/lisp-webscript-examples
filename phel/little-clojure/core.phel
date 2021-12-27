@@ -32,12 +32,12 @@
   (php/substr (str kw) 1))
 
 (defn atom [val]
-  (let [a @{:atom-val val}] a))
+  (transient {:atom-val val}))
+
+(defn deref [a] (:atom-val a))
 
 (defn swap! [a fun]
-  (let [val (fun (:atom-val a))]
-    (put a :atom-val val)
-    val))
+  (deref (update a :atom-val fun)))
 
 (defn reset! [a val]
   (put a :atom-val val)
@@ -45,10 +45,8 @@
 
 (defn doall [x] x)
 
-(defn deref [a] (:atom-val a))
-
 (defn atom? [a]
-  (and (table? a) (:atom-val a))) # `table?` is deprecated and it will be removed in the next version
+  (and (= :php/object (type a)) (:atom-val a)))
 
 (defn read-edn [edn-string]
   (let [comma-outside-string "/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/"
