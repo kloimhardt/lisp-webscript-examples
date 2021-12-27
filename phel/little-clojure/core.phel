@@ -19,10 +19,6 @@
 (defn set-contains? [st el]
   (if (= (set) (intersection st (set el))) nil el))
 
-(defn into-table [coll]
-  (let [empty @{}]
-    (reduce (fn [m [k v]] (put m k v)) empty coll)))
-
 (defn into-map [coll]
   (reduce (fn [m [k v]] (put m k v)) {} coll))
 
@@ -52,7 +48,7 @@
 (defn deref [a] (:atom-val a))
 
 (defn atom? [a]
-  (and (table? a) (:atom-val a)))
+  (and (table? a) (:atom-val a))) # `table?` is deprecated and it will be removed in the next version
 
 (defn read-edn [edn-string]
   (let [comma-outside-string "/,(?=(?:(?:[^\"]*\"){2})*[^\"]*$)/"
