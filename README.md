@@ -47,8 +47,13 @@ I needed to expose [Qlkit](https://github.com/kloimhardt/qlkit) to [Scittle](htt
 
 Moreover, the 60 loc server part of Qlkit had to be ported to Phel.
 
-## Run Tests
+## Run Tests etc.
 
 ```
 ./vendor/bin/phel test
+```
+
+```
+./vendor/bin/phel format phel
+./vendor/bin/phel format tests
 ```
