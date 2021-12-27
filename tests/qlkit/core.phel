@@ -44,15 +44,15 @@
                         [:foo])
             "No method in multimethod for: :foo")
   (is-equal
-    (parse-with (fn []
-                  (clj/defmethod read :animals
-                    (fn [query-term env state]
-                      (for [animal-id :in (range 3)]
-                        (ql/parse-children query-term (assoc env :animal-id animal-id)))))
-                  (clj/defmethod read :name
-                    (fn [query-term env state]
-                      (get {0 :duck 1 :cat 2 :dog} (:animal-id env)))))
-                [:animals {} [:name]])
+   (parse-with (fn []
+                 (clj/defmethod read :animals
+                                (fn [query-term env state]
+                                  (for [animal-id :in (range 3)]
+                                    (ql/parse-children query-term (assoc env :animal-id animal-id)))))
+                 (clj/defmethod read :name
+                                (fn [query-term env state]
+                                  (get {0 :duck 1 :cat 2 :dog} (:animal-id env)))))
+               [:animals {} [:name]])
    [{:name :duck} {:name :cat} {:name :dog}]))
 
 (deftest mount-test
